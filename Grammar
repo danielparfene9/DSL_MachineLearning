@@ -1,0 +1,25 @@
+<DSL> ::= <Statement> | <ModelDeclaration> | <TrainCommand> | <PredictCommand> |<ErrorRatioCommand>
+
+<Statement> ::= <ModelDeclaration> | <TrainCommand> | <PredictCommand> | <ErrorRatioCommand>
+
+<ModelDeclaration> ::= "model" <Identifier> "=" "new" <ModelType> "(" <RegressionType> ")"
+
+<ModelType> ::= "model1" | "model2" | "model3" | ...
+
+<RegressionType> ::= "LinearRegression" | "BayesianRidge" | "SGDRegressor" | "ElasticNet" | ...
+
+<TrainCommand> ::= "train" "." <Identifier> "(" <DataFrame> "," <Predictors> "," <Target> ")"
+
+<PredictCommand> ::= "predict" "." <Identifier> "(" <DataFrame> ")"
+
+<ErrorRatioCommand> ::= "error_ratio" "." <Identifier> "(" <DataFrame> ")"
+
+<Identifier> ::= [a-zA-Z_][a-zA-Z0-9_]*
+
+<DataFrame> ::= <Identifier>
+
+<Predictors> ::= "[" <ColumnList> "]"
+
+<Target> ::= <Identifier>
+
+<ColumnList> ::= <Identifier> ("," <Identifier>)*

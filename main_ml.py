@@ -66,7 +66,8 @@ medals_by_team = test["medals"].groupby(test["team"]).mean()
 error_ratio = error_by_team / medals_by_team
 error_ratio = error_ratio[~pd.isnull(error_ratio)]
 error_ratio = error_ratio[np.isfinite(error_ratio)]
-error_ratio.sort_values() 
+error_ratio.sort_values()
+print(error_ratio)
 
 
 
