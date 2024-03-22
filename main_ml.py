@@ -37,7 +37,7 @@ train = teams[teams["year"] < 2012].copy()
 test = teams[teams["year"] >= 2012].copy()
 
 
-reg = ElasticNet()
+reg = LinearRegression()
 
 predictors = ["athletes", "prev_medals"]
 target = "medals"
@@ -53,7 +53,6 @@ test.loc[test["predictions"] < 0, "predictions"] = 0
 test["predictions"] = test["predictions"].round()
 
 error = mean_absolute_error(test["medals"], test["predictions"])
-
 print(error)
 
 errors = (test["medals"] - test["predictions"]).abs()

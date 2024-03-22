@@ -2,6 +2,8 @@
 
 <Statement> ::= <ModelDeclaration> | <TrainCommand> | <PredictCommand> | <ErrorRatioCommand>
 
+<Importing> ::= "import" <Identifier> "." "Extension"
+
 <ModelDeclaration> ::= "model" <Identifier> "=" "new" <ModelType> "(" <RegressionType> ")"
 
 <ModelType> ::= "model1" | "model2" | "model3" | ...
