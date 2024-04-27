@@ -1,3 +1,4 @@
+***
 <DSL> ::= <Statement> | <ModelDeclaration> | <TrainCommand> | <PredictCommand> |<ErrorRatioCommand>
 
 <Statement> ::= <ModelDeclaration> | <TrainCommand> | <PredictCommand> | <ErrorRatioCommand>
@@ -24,4 +25,5 @@
 
 <Target> ::= <Identifier>
 
-<ColumnList> ::= <Identifier> ("," <Identifier>)*
+<ColumnList> ::= <Identifier> ("," <Identifier>)
+***
