@@ -31,7 +31,7 @@ use_statement: USE ID;
 
 model_declaration: MODEL ID EQUALS NEW MODEL LPAREN regression_type RPAREN;
 
-regression_type: 'LinearRegression' | 'BayesianRidge' | 'SGDRegressor' | 'ElasticNet' /* Add other regression types here */;
+regression_type: 'LinearRegression';
 
 train_command: TRAIN '.' ID LPAREN ID COMMA predictors RBRACK COMMA ID RPAREN;
 

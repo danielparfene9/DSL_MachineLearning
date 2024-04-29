@@ -1,73 +1,97 @@
 import pandas as pd
-from sklearn.linear_model import LinearRegression, BayesianRidge, SGDRegressor, ElasticNet
-from sklearn.metrics import mean_absolute_error
-from enum import Enum
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
-class RegressionType(Enum):
-    LINEAR = "LinearRegression"
-    BAYESIAN_RIDGE = "BayesianRidge"
-    SGD = "SGDRegressor"
-    ELASTIC_NET = "ElasticNet"
+class SalesPredictor:
+    def __init__(self, filename):
+        self.filename = filename
+
+    def preprocess_data(self, sales_data):
+        sales_data['date'] = pd.to_datetime(sales_data['date'])
+        sales_data['date'] = sales_data['date'].dt.to_period('M')
+
+        monthly_sales = sales_data.groupby('date').sum().reset_index()
+        monthly_sales['date'] = monthly_sales['date'].dt.to_timestamp()
+        monthly_sales['sales_diff'] = monthly_sales['sales'].diff()
+        monthly_sales = monthly_sales.dropna()
+
+        return monthly_sales
+
+    def create_supervised_dataset(self, monthly_sales_data, lag=12):
+        supervised_data = monthly_sales_data.drop(['date', 'sales'], axis=1)
+
+        for i in range(1, lag + 1):
+            col_name = 'month_' + str(i)
+            supervised_data[col_name] = supervised_data['sales_diff'].shift(i)
+        supervised_data = supervised_data.dropna().reset_index(drop=True)
+
+        return supervised_data
 
 
-class PredictionModel:
-    def __init__(self, file_path, predictors, target, regression_type=RegressionType.LINEAR):
-        self.file_path = file_path
-        self.predictors = predictors
-        self.target = target
-        self.regression_type = regression_type
+    def train_model(self, train_data, scaler):
+        scaler.fit(train_data)
+        scaled_train_data = scaler.transform(train_data)
+        X_train, y_train = scaled_train_data[:, 1:], scaled_train_data[:, 0:1]
+        y_train = y_train.ravel()
 
-    def load_data(self):
-        self.data = pd.read_csv(self.file_path)
+        linreg_model = LinearRegression()
+        linreg_model.fit(X_train, y_train)
 
-    def preprocess_data(self):
-        self.data.dropna(inplace=True)
+        return linreg_model
 
-    def train_model(self):
-        train = self.data[self.data["year"] < 2012].copy()
-        test = self.data[self.data["year"] >= 2012].copy()
+    def predict_sales(self, model, test_data, scaler, actual_sales):
+        scaled_test_data = scaler.transform(test_data)
+        X_test, y_test = scaled_test_data[:, 1:], scaled_test_data[:, 0:1]
+        y_test = y_test.ravel()
 
-        if self.regression_type == RegressionType.LINEAR:
-            reg = LinearRegression()
-        elif self.regression_type == RegressionType.BAYESIAN_RIDGE:
-            reg = BayesianRidge()
-        elif self.regression_type == RegressionType.SGD:
-            reg = SGDRegressor()
-        elif self.regression_type == RegressionType.ELASTIC_NET:
-            reg = ElasticNet()
+        linreg_pred = model.predict(X_test)
 
-        reg.fit(train[self.predictors], train[self.target])
+        linreg_pred_test_set = np.concatenate([linreg_pred.reshape(-1, 1), X_test], axis=1)
+        linreg_pred_test_set = scaler.inverse_transform(linreg_pred_test_set)
 
-        predictions = reg.predict(test[self.predictors])
-        test["predictions"] = predictions
-        test.loc[test["predictions"] < 0, "predictions"] = 0
-        test["predictions"] = test["predictions"].round()
+        result_list = [linreg_pred_test_set[index][0] + actual_sales[index] for index in
+                       range(len(linreg_pred_test_set))]
+        return result_list
 
-        self.test_data = test
-
-    def evaluate_model(self):
-        error = mean_absolute_error(self.test_data[self.target], self.test_data["predictions"])
-        print("Overall Mean Error:", error)
-
-        errors = (self.test_data[self.target] - self.test_data["predictions"]).abs()
-        print("Individual Errors:")
-        print(errors)
-
-        print("Predicted Values:")
-        print(self.test_data[["year", "predictions"]])
+    def evaluate_model(self, predictions, actual):
+        rmse = np.sqrt(mean_squared_error(predictions, actual))
+        mae = mean_absolute_error(predictions, actual)
+        r2 = r2_score(predictions, actual)
+        return rmse, mae, r2
 
     def run(self):
-        self.load_data()
-        self.preprocess_data()
-        self.train_model()
-        self.evaluate_model()
+        sales = pd.read_csv(self.filename)
+        sales = sales.drop(['store', 'item'], axis=1)
+
+        monthly_sales = self.preprocess_data(sales)
+        supervised_data = self.create_supervised_dataset(monthly_sales)
+
+        train_data = supervised_data[:-12]
+        test_data = supervised_data[-12:]
+
+        scaler = MinMaxScaler(feature_range=(-1, 1))
+        linreg_model = self.train_model(train_data, scaler)
+
+        sales_dates = monthly_sales['date'][-12:].reset_index(drop=True)
+        predict_df = pd.DataFrame(sales_dates)
+        act_sales = monthly_sales['sales'][-13:].to_list()
+
+        predictions = self.predict_sales(linreg_model, test_data, scaler, act_sales)
+
+        predict_df['linreg_pred'] = predictions
+
+        linreg_rmse, linreg_mae, linreg_r2 = self.evaluate_model(predictions, monthly_sales['sales'][-12:])
+        print('Linear Regression RMSE:', linreg_rmse)
+        print('Linear Regression MAE:', linreg_mae)
+        print('Linear Regression R2 Score:', linreg_r2)
+
+        predict_df_float = predict_df.applymap(lambda x: float("{:.2f}".format(x)) if isinstance(x, float) else x)
+        print(predict_df_float.to_string(index=False))
 
 
-file_path = "../V1/teams.csv"
-predictors = ["athletes", "prev_medals"]
-target = "medals"
-regression_type = RegressionType.LINEAR
-
-model = PredictionModel(file_path, predictors, target, regression_type)
-model.run()
+if __name__ == "__main__":
+    predictor = SalesPredictor('train.csv')
+    predictor.run()
