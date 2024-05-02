@@ -6,22 +6,24 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
 class SalesPredictor:
-    def __init__(self, filename):
+    def __init__(self, filename, date_column, sales_column):
         self.filename = filename
+        self.date_column = date_column
+        self.sales_column = sales_column
 
     def preprocess_data(self, sales_data):
-        sales_data['date'] = pd.to_datetime(sales_data['date'])
-        sales_data['date'] = sales_data['date'].dt.to_period('M')
+        sales_data[self.date_column] = pd.to_datetime(sales_data[self.date_column])
+        sales_data[self.date_column] = sales_data[self.date_column].dt.to_period('M')
 
-        monthly_sales = sales_data.groupby('date').sum().reset_index()
-        monthly_sales['date'] = monthly_sales['date'].dt.to_timestamp()
-        monthly_sales['sales_diff'] = monthly_sales['sales'].diff()
+        monthly_sales = sales_data.groupby(self.date_column).sum().reset_index()
+        monthly_sales[self.date_column] = monthly_sales[self.date_column].dt.to_timestamp()
+        monthly_sales['sales_diff'] = monthly_sales[self.sales_column].diff()
         monthly_sales = monthly_sales.dropna()
 
         return monthly_sales
 
     def create_supervised_dataset(self, monthly_sales_data, lag=12):
-        supervised_data = monthly_sales_data.drop(['date', 'sales'], axis=1)
+        supervised_data = monthly_sales_data.drop([self.date_column, self.sales_column], axis=1)
 
         for i in range(1, lag + 1):
             col_name = 'month_' + str(i)
@@ -29,7 +31,6 @@ class SalesPredictor:
         supervised_data = supervised_data.dropna().reset_index(drop=True)
 
         return supervised_data
-
 
     def train_model(self, train_data, scaler):
         scaler.fit(train_data)
@@ -64,7 +65,7 @@ class SalesPredictor:
 
     def run(self):
         sales = pd.read_csv(self.filename)
-        sales = sales.drop(['store', 'item'], axis=1)
+        sales = sales[[self.date_column, self.sales_column]]
 
         monthly_sales = self.preprocess_data(sales)
         supervised_data = self.create_supervised_dataset(monthly_sales)
@@ -75,15 +76,15 @@ class SalesPredictor:
         scaler = MinMaxScaler(feature_range=(-1, 1))
         linreg_model = self.train_model(train_data, scaler)
 
-        sales_dates = monthly_sales['date'][-12:].reset_index(drop=True)
+        sales_dates = monthly_sales[self.date_column][-12:].reset_index(drop=True)
         predict_df = pd.DataFrame(sales_dates)
-        act_sales = monthly_sales['sales'][-13:].to_list()
+        act_sales = monthly_sales[self.sales_column][-13:].to_list()
 
         predictions = self.predict_sales(linreg_model, test_data, scaler, act_sales)
 
         predict_df['linreg_pred'] = predictions
 
-        linreg_rmse, linreg_mae, linreg_r2 = self.evaluate_model(predictions, monthly_sales['sales'][-12:])
+        linreg_rmse, linreg_mae, linreg_r2 = self.evaluate_model(predictions, monthly_sales[self.sales_column][-12:])
         print('Linear Regression RMSE:', linreg_rmse)
         print('Linear Regression MAE:', linreg_mae)
         print('Linear Regression R2 Score:', linreg_r2)
@@ -93,5 +94,5 @@ class SalesPredictor:
 
 
 if __name__ == "__main__":
-    predictor = SalesPredictor('train.csv')
+    predictor = SalesPredictor('Sales.csv', 'date', 'sales')
     predictor.run()
