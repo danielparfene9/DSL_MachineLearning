@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
 class SalesPredictor:
@@ -57,12 +56,6 @@ class SalesPredictor:
                        range(len(linreg_pred_test_set))]
         return result_list
 
-    def evaluate_model(self, predictions, actual):
-        rmse = np.sqrt(mean_squared_error(predictions, actual))
-        mae = mean_absolute_error(predictions, actual)
-        r2 = r2_score(predictions, actual)
-        return rmse, mae, r2
-
     def run(self):
         sales = pd.read_csv(self.filename)
         sales = sales[[self.date_column, self.sales_column]]
@@ -84,15 +77,10 @@ class SalesPredictor:
 
         predict_df['linreg_pred'] = predictions
 
-        linreg_rmse, linreg_mae, linreg_r2 = self.evaluate_model(predictions, monthly_sales[self.sales_column][-12:])
-        print('Linear Regression RMSE:', linreg_rmse)
-        print('Linear Regression MAE:', linreg_mae)
-        print('Linear Regression R2 Score:', linreg_r2)
-
         predict_df_float = predict_df.applymap(lambda x: float("{:.2f}".format(x)) if isinstance(x, float) else x)
         print(predict_df_float.to_string(index=False))
 
 
 if __name__ == "__main__":
-    predictor = SalesPredictor('Sales.csv', 'date', 'sales')
+    predictor = SalesPredictor('../V3/Sales.csv', 'date', 'item')
     predictor.run()
