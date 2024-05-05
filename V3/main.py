@@ -182,17 +182,18 @@ class ModelTrainer:
 
 model_trainer = ModelTrainer('AIDS_Classification.csv', 'gender')
 
-# target_column = 'sales'  # Replace 'target_column' with the name of your target variable
+#### Линейная Регрессия ( Самая Быстрая )
+try:
+    model_trainer.preprocess_data_lin_reg()
+    linear_regression_model = model_trainer.train_linear_regression()
+    y_pred_lr, mae_lr = model_trainer.evaluate_regression_model(linear_regression_model)
+    print("Linear Regression - Mean Absolute Error:", mae_lr)
+    print("Linear Regression - Predicted Values:", y_pred_lr)
+except ValueError as e:
+    print(e)
 
-# try:
-#     model_trainer.preprocess_data_lin_reg()
-#     linear_regression_model = model_trainer.train_linear_regression()
-#     y_pred_lr, mae_lr = model_trainer.evaluate_regression_model(linear_regression_model)
-#     print("Linear Regression - Mean Absolute Error:", mae_lr)
-#     print("Linear Regression - Predicted Values:", y_pred_lr)
-# except ValueError as e:
-#     print(e)
 
+#### Строит деверво ( +- 3-4 минукты )
 # try:
 #     model_trainer.preprocess_data_rfr()
 #     random_forest_regression_model = model_trainer.train_random_forest_regression()
@@ -202,6 +203,7 @@ model_trainer = ModelTrainer('AIDS_Classification.csv', 'gender')
 # except ValueError as e:
 #     print(e)
 
+#### Строит вектора в 2д виде ( +- 8 минукт )
 # try:
 #     model_trainer.preprocess_data_svr()
 #     support_vector_regression_model = model_trainer.train_support_vector_regression()
@@ -211,6 +213,8 @@ model_trainer = ModelTrainer('AIDS_Classification.csv', 'gender')
 # except ValueError as e:
 #     print(e)
 
+
+#### Тоже самое только для класификации
 # try:
 #     model_trainer.preprocess_data_log_reg()
 #     logistic_regression_model = model_trainer.train_logistic_regression()
@@ -219,7 +223,7 @@ model_trainer = ModelTrainer('AIDS_Classification.csv', 'gender')
 #     print("Logistic Regression - Predicted Values:", y_pred_logistic)
 # except ValueError as e:
 #     print(e)
-
+#### Тоже самое только для класификации
 # try:
 #     model_trainer.preprocess_data_rfc()
 #     random_forest_classifier_model = model_trainer.train_random_forest_classifier()
@@ -229,6 +233,8 @@ model_trainer = ModelTrainer('AIDS_Classification.csv', 'gender')
 # except ValueError as e:
 #     print(e)
 
+
+#### ДОЛГО
 # try:
 #     model_trainer.preprocess_data_svc()
 #     support_vector_classifier_model = model_trainer.train_support_vector_classifier()
