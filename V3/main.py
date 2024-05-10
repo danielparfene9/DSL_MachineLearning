@@ -186,7 +186,7 @@ class ModelTrainer:
                 index += 1
             joblib.dump(model, filename)
         return model
-
+# ВМЕСТО НАЗВАНИЯ МОДЕЛИ, ЕСЛИ ПОЛЬЗОВАТЕЛЮ НЕ НУЖНО ЕЕ СОХРАНАЯТЬ ДОЛЖНО СТОЯТЬ None
     def train_random_forest_regression(self, save_model='random_forest_reg'):
         if self.is_classification_target():
             raise ValueError("Cannot train Random Forest Regression model with classification target.")
@@ -282,26 +282,22 @@ class ModelTrainer:
 
 
 model_trainer = ModelTrainer('Sales.csv', 'sales')
-
+load_model = True
 #### Линейная Регрессия ( Самая Быстрая )
 try:
     model_trainer.preprocess_data_lin_reg()
-    linear_regression_model = model_trainer.train_linear_regression()
+    ### ЕСЛИ У ПОЛЬЗОВАТЕЛЯ УЖЕ ЕСТЬ МОДЕЛЬ ТО ЗАГРУЖАЕМ ( Если тебе удобно работать с вот такой формой,
+    ### Я сделаю и для остальных также, просто немного напрягает переменная load_model которую нужно будет контролировать.
+    if load_model:
+        linear_regression_model = model_trainer.load_model('lin_reg.pkl')
+    else:
+        linear_regression_model = model_trainer.train_linear_regression()
+
     y_pred_lr, mae_lr = model_trainer.evaluate_regression_model(linear_regression_model)
     print("Linear Regression - Mean Absolute Error:", mae_lr)
     print("Linear Regression - Predicted Values:", y_pred_lr)
 except ValueError as e:
     print(e)
-
-### ТЕПЕРЬ ЕСЛИ МЫ ЗАГРУЖАЕМ МОДЕЛЬ НУЖНО СДЕЛАТЬ ВОТ ТАК ОТДЕЛЬНО
-# try:
-#     model_trainer.preprocess_data_lin_reg()
-#     linear_regression_model = model_trainer.load_model('lin_reg.pkl')
-#     y_pred_lr, mae_lr = model_trainer.evaluate_regression_model(linear_regression_model)
-#     print("Linear Regression - Mean Absolute Error:", mae_lr)
-#     print("Linear Regression - Predicted Values:", y_pred_lr)
-# except ValueError as e:
-#     print(e)
 
 ### Строит деверво ( +- 3-4 минукты )
 # try:
