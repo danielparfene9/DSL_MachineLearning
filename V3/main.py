@@ -26,13 +26,14 @@ class ModelTrainer:
         self.y_train = None
         self.y_test = None
 
-### ДОБАВИЛ ПАРАМЕТР missing_values. Если пользователь выберет допустим что у него они есть, то нужно будет поменять на True
+# ДОБАВИЛ ПАРАМЕТР missing_values. Если пользователь выберет допустим что у него они есть,
+    # то нужно будет поменять на True
     def populate_x_y(self, missing_values=False):
 
         target_col = self.target_col
 
         # ЭТО НАМ СКАЗАЛИ СДЕЛАТЬ НА ВЫБОР ПОЛЬЗОВАТЕЛЯ
-        # Вставляет значения основываясь на срендем арифметическом
+        # вставляет значения основываясь на среднем арифметическом
 
         if missing_values:
             if self.data[target_col].isnull().any():
@@ -51,7 +52,7 @@ class ModelTrainer:
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, test_size=0.2,
                                                                                 random_state=42)
 
-    ### ЭТО КОММАНДЫ ДЛЯ ПРЕДОБРАБОТКИ НА ВЫБОР ПОЛЬЗОВАТЕЛЯ
+    # ЭТО КОММАНДЫ ДЛЯ ПРЕДОБРАБОТКИ НА ВЫБОР ПОЛЬЗОВАТЕЛЯ
     # def scaling(self):
     #
     #     scaler = StandardScaler()
@@ -170,13 +171,14 @@ class ModelTrainer:
         model = joblib.load(model_path)
         return model
 
-### ДОБАВИЛ ПАРАМЕТР save_model ( в формате pkl ) через который будем сохранять саму модель после того как затрейнили
+# ДОБАВИЛ ПАРАМЕТР save_model ( в формате pkl ) через который будем сохранять саму модель после того как затрейнили
     def train_linear_regression(self, save_model='lin_reg'):
         if self.is_classification_target():
             raise ValueError("Cannot train Linear Regression model with classification target.")
         model = LinearRegression()
         model.fit(self.X_train, self.y_train)
-### ЕСЛИ БЫЛО НАЗНАЧЕНО НАЗВАНИЕ ФАЙЛА И ПУТЬ КУДА СОХРАНИТЬ ТО МЫ СОХРАНЯЕМ
+
+# ЕСЛИ БЫЛО НАЗНАЧЕНО НАЗВАНИЕ ФАЙЛА И ПУТЬ КУДА СОХРАНИТЬ, ТО МЫ СОХРАНЯЕМ
         if save_model:
             index = 0
             while True:
@@ -187,6 +189,7 @@ class ModelTrainer:
             joblib.dump(model, filename)
         return model
 # ВМЕСТО НАЗВАНИЯ МОДЕЛИ, ЕСЛИ ПОЛЬЗОВАТЕЛЮ НЕ НУЖНО ЕЕ СОХРАНАЯТЬ ДОЛЖНО СТОЯТЬ None
+
     def train_random_forest_regression(self, save_model='random_forest_reg'):
         if self.is_classification_target():
             raise ValueError("Cannot train Random Forest Regression model with classification target.")
@@ -283,11 +286,12 @@ class ModelTrainer:
 
 model_trainer = ModelTrainer('Sales.csv', 'sales')
 load_model = True
-#### Линейная Регрессия ( Самая Быстрая )
+
+# Линейная Регрессия ( Самая Быстрая )
 try:
     model_trainer.preprocess_data_lin_reg()
-    ### ЕСЛИ У ПОЛЬЗОВАТЕЛЯ УЖЕ ЕСТЬ МОДЕЛЬ ТО ЗАГРУЖАЕМ ( Если тебе удобно работать с вот такой формой,
-    ### Я сделаю и для остальных также, просто немного напрягает переменная load_model которую нужно будет контролировать.
+    # ЕСЛИ У ПОЛЬЗОВАТЕЛЯ УЖЕ ЕСТЬ МОДЕЛЬ, ТО ЗАГРУЖАЕМ ( Если тебе удобно работать с вот такой формой,
+    # Я сделаю и для остальных также, просто немного напрягает переменная load_model которую нужно будет контролировать.
     if load_model:
         linear_regression_model = model_trainer.load_model('lin_reg.pkl')
     else:
@@ -299,7 +303,7 @@ try:
 except ValueError as e:
     print(e)
 
-### Строит деверво ( +- 3-4 минукты )
+# Строит деверво ( +- 3-4 минукты )
 # try:
 #     model_trainer.preprocess_data_rfr()
 #     random_forest_regression_model = model_trainer.train_random_forest_regression()
@@ -309,7 +313,7 @@ except ValueError as e:
 # except ValueError as e:
 #     print(e)
 
-#### Строит вектора в 2д виде ( +- 8 минукт )
+# Строит вектора в 2д виде ( +- 8 минукт )
 # try:
 #     model_trainer.preprocess_data_svr()
 #     support_vector_regression_model = model_trainer.train_support_vector_regression()
@@ -320,7 +324,7 @@ except ValueError as e:
 #     print(e)
 
 
-#### Тоже самое только для класификации
+# Тоже самое только для классификации
 # try:
 #     model_trainer.preprocess_data_log_reg()
 #     logistic_regression_model = model_trainer.train_logistic_regression()
@@ -329,7 +333,7 @@ except ValueError as e:
 #     print("Logistic Regression - Predicted Values:", y_pred_logistic)
 # except ValueError as e:
 #     print(e)
-#### Тоже самое только для класификации
+# Тоже самое только для классификации
 # try:
 #     model_trainer.preprocess_data_rfc()
 #     random_forest_classifier_model = model_trainer.train_random_forest_classifier()
@@ -340,7 +344,7 @@ except ValueError as e:
 #     print(e)
 
 
-#### ДОЛГО
+# ДОЛГО
 # try:
 #     model_trainer.preprocess_data_svc()
 #     support_vector_classifier_model = model_trainer.train_support_vector_classifier()
