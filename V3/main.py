@@ -12,6 +12,7 @@ from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler
 from sklearn.feature_selection import RFE
 from sklearn.manifold import TSNE
 import joblib
+import os
 
 
 class ModelTrainer:
@@ -164,54 +165,106 @@ class ModelTrainer:
 
         return df
 
+
+    def load_model(self, model_path):
+        model = joblib.load(model_path)
+        return model
+
 ### ДОБАВИЛ ПАРАМЕТР save_model ( в формате pkl ) через который будем сохранять саму модель после того как затрейнили
-    def train_linear_regression(self, save_model='lin_reg.pkl'):
+    def train_linear_regression(self, save_model='lin_reg'):
         if self.is_classification_target():
             raise ValueError("Cannot train Linear Regression model with classification target.")
         model = LinearRegression()
         model.fit(self.X_train, self.y_train)
 ### ЕСЛИ БЫЛО НАЗНАЧЕНО НАЗВАНИЕ ФАЙЛА И ПУТЬ КУДА СОХРАНИТЬ ТО МЫ СОХРАНЯЕМ
         if save_model:
-            joblib.dump(model, save_model)
+            index = 0
+            while True:
+                filename = f"{save_model}_{index}.pkl"
+                if not os.path.exists(filename):
+                    break
+                index += 1
+            joblib.dump(model, filename)
         return model
 
-    def load_model(self, model_path):
-        model = joblib.load(model_path)
-        return model
-
-    def train_random_forest_regression(self):
+    def train_random_forest_regression(self, save_model='random_forest_reg'):
         if self.is_classification_target():
             raise ValueError("Cannot train Random Forest Regression model with classification target.")
         model = RandomForestRegressor()
         model.fit(self.X_train, self.y_train)
+
+        if save_model:
+            index = 0
+            while True:
+                filename = f"{save_model}_{index}.pkl"
+                if not os.path.exists(filename):
+                    break
+                index += 1
+            joblib.dump(model, filename)
         return model
 
-    def train_support_vector_regression(self):
+    def train_support_vector_regression(self, save_model='svr_reg'):
         if self.is_classification_target():
             raise ValueError("Cannot train Support Vector Regression model with classification target.")
         model = SVR()
         model.fit(self.X_train, self.y_train)
+
+        if save_model:
+            index = 0
+            while True:
+                filename = f"{save_model}_{index}.pkl"
+                if not os.path.exists(filename):
+                    break
+                index += 1
+            joblib.dump(model, filename)
         return model
 
-    def train_logistic_regression(self):
+    def train_logistic_regression(self, save_model='logistic_reg_cl'):
         if not self.is_classification_target():
             raise ValueError("Cannot train Logistic Regression model with regression target.")
         model = LogisticRegression()
         model.fit(self.X_train, self.y_train)
+
+        if save_model:
+            index = 0
+            while True:
+                filename = f"{save_model}_{index}.pkl"
+                if not os.path.exists(filename):
+                    break
+                index += 1
+            joblib.dump(model, filename)
         return model
 
-    def train_random_forest_classifier(self):
+    def train_random_forest_classifier(self, save_model='random_forest_cl'):
         if not self.is_classification_target():
             raise ValueError("Cannot train Random Forest Classifier model with regression target.")
         model = RandomForestClassifier()
         model.fit(self.X_train, self.y_train)
+
+        if save_model:
+            index = 0
+            while True:
+                filename = f"{save_model}_{index}.pkl"
+                if not os.path.exists(filename):
+                    break
+                index += 1
+            joblib.dump(model, filename)
         return model
 
-    def train_support_vector_classifier(self):
+    def train_support_vector_classifier(self, save_model='svc_cl'):
         if not self.is_classification_target():
             raise ValueError("Cannot train Support Vector Classifier model with regression target.")
         model = SVC()
         model.fit(self.X_train, self.y_train)
+
+        if save_model:
+            index = 0
+            while True:
+                filename = f"{save_model}_{index}.pkl"
+                if not os.path.exists(filename):
+                    break
+                index += 1
+            joblib.dump(model, filename)
         return model
 
     def evaluate_regression_model(self, model):
@@ -231,24 +284,24 @@ class ModelTrainer:
 model_trainer = ModelTrainer('Sales.csv', 'sales')
 
 #### Линейная Регрессия ( Самая Быстрая )
-# try:
-#     model_trainer.preprocess_data_lin_reg()
-#     linear_regression_model = model_trainer.train_linear_regression()
-#     y_pred_lr, mae_lr = model_trainer.evaluate_regression_model(linear_regression_model)
-#     print("Linear Regression - Mean Absolute Error:", mae_lr)
-#     print("Linear Regression - Predicted Values:", y_pred_lr)
-# except ValueError as e:
-#     print(e)
-
-### ТЕПЕРЬ ЕСЛИ МЫ ЗАГРУЖАЕМ МОДЕЛЬ НУЖНО СДЕЛАТЬ ВОТ ТАК ОТДЕЛЬНО
 try:
     model_trainer.preprocess_data_lin_reg()
-    linear_regression_model = model_trainer.load_model('lin_reg.pkl')
+    linear_regression_model = model_trainer.train_linear_regression()
     y_pred_lr, mae_lr = model_trainer.evaluate_regression_model(linear_regression_model)
     print("Linear Regression - Mean Absolute Error:", mae_lr)
     print("Linear Regression - Predicted Values:", y_pred_lr)
 except ValueError as e:
     print(e)
+
+### ТЕПЕРЬ ЕСЛИ МЫ ЗАГРУЖАЕМ МОДЕЛЬ НУЖНО СДЕЛАТЬ ВОТ ТАК ОТДЕЛЬНО
+# try:
+#     model_trainer.preprocess_data_lin_reg()
+#     linear_regression_model = model_trainer.load_model('lin_reg.pkl')
+#     y_pred_lr, mae_lr = model_trainer.evaluate_regression_model(linear_regression_model)
+#     print("Linear Regression - Mean Absolute Error:", mae_lr)
+#     print("Linear Regression - Predicted Values:", y_pred_lr)
+# except ValueError as e:
+#     print(e)
 
 ### Строит деверво ( +- 3-4 минукты )
 # try:
