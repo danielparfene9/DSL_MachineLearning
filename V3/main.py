@@ -11,6 +11,7 @@ from datetime import datetime
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler
 from sklearn.feature_selection import RFE
 from sklearn.manifold import TSNE
+import joblib
 
 
 class ModelTrainer:
@@ -24,13 +25,20 @@ class ModelTrainer:
         self.y_train = None
         self.y_test = None
 
-    def populate_x_y(self):
+### ДОБАВИЛ ПАРАМЕТР missing_values. Если пользователь выберет допустим что у него они есть, то нужно будет поменять на True
+    def populate_x_y(self, missing_values=False):
 
         target_col = self.target_col
 
-        if self.data[target_col].isnull().any():
-            imputer = SimpleImputer(strategy='mean')
-            self.data[target_col] = imputer.fit_transform(self.data[target_col].values.reshape(-1, 1)).flatten()
+        # ЭТО НАМ СКАЗАЛИ СДЕЛАТЬ НА ВЫБОР ПОЛЬЗОВАТЕЛЯ
+        # Вставляет значения основываясь на срендем арифметическом
+
+        if missing_values:
+            if self.data[target_col].isnull().any():
+                imputer = SimpleImputer(strategy='mean')
+                self.data[target_col] = imputer.fit_transform(self.data[target_col].values.reshape(-1, 1)).flatten()
+
+        self.data = self.data.dropna(subset=[target_col])
 
         self.data = self.handle_dates(self.data)
 
@@ -42,13 +50,15 @@ class ModelTrainer:
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, test_size=0.2,
                                                                                 random_state=42)
 
+    ### ЭТО КОММАНДЫ ДЛЯ ПРЕДОБРАБОТКИ НА ВЫБОР ПОЛЬЗОВАТЕЛЯ
     # def scaling(self):
     #
     #     scaler = StandardScaler()
     #     scaler.fit(self.X_train)
     #     self.X_train = scaler.transform(self.X_train)
     #     self.X_test = scaler.transform(self.X_test)
-    #
+
+    # ВОТ ЭТОТ НУЖНО ИСПОЛЬЗОВАТЬ ТОЛЬКО ПОСЛЕ Populate_x_y перед split_data
     # def principal_component_analysis(self):
     #
     #     pca = PCA(n_components=0.7)
@@ -59,7 +69,8 @@ class ModelTrainer:
     #     std_dev = self.X_train.std(axis=0)
     #     self.X_train = (self.X_train - mean) / std_dev
     #     self.X_test = (self.X_test - mean) / std_dev
-    #
+
+    # ВОТ ЭТИ ДВЕ СЛЕДУЮЩИЕ ТОЛЬКО ДЛЯ КЛАСИФИКАЦИИ
     # def one_hot_encoding(self):
     #     encoder = OneHotEncoder(handle_unknown='ignore', sparse=False)
     #     self.X_train = encoder.fit_transform(self.X_train)
@@ -75,40 +86,69 @@ class ModelTrainer:
     #     self.X_train = scaler.fit_transform(self.X_train)
     #     self.X_test = scaler.transform(self.X_test)
 
+# Я НЕ СТАЛ ДЕЛАТЬ ОТДЕЛЬНУЮ ФУНКЦИЮ ГДЕ ЗАКИНУ ВОТ ЭТИ ВСЕ МЕТОДЫ, РЕШИЛ ЧТО БУДЕТ ЛЕГЧЕ ВНУТРИ НИХ УЖЕ ВНЕДРИТЬ
+# МЕТОДЫ ПРЕДОБРАБОТКИ СВЕРХУ ДЛЯ КАЖДОГО ОТДЕЛЬНО ТК ЕСТЬ ТЕ КОТОРЫЕ МОЖНО ИСПОЛЬЗОВАТЬ ТОЛЬКО С КЛАССИФИКАЦИЕИ
+# ВСЕ ЧТО ЗАКОМЕНТИРОВАНО СДЕЛАНО НА ВЫБОР ПОЛЬЗОВАТЕЛЯ
+
     def preprocess_data_lin_reg(self):
 
         self.populate_x_y()
+        # self.principal_component_analysis()
         self.split_data()
-
-        # self.scaling() IF USER CHOOSES TO USE OR NOT
+        # self.scaling()
+        # self.min_max_scaling()
+        # self.z_score_normalization()
 
     def preprocess_data_rfr(self):
 
         self.populate_x_y()
-        # self.principal_component_analysis() IF USER CHOOSES
+        # self.principal_component_analysis()
         self.split_data()
+        # self.scaling()
+        # self.min_max_scaling()
+        # self.z_score_normalization()
 
     def preprocess_data_svr(self):
 
         self.populate_x_y()
+        # self.principal_component_analysis()
         self.split_data()
-
-        # self.scaling() IF USE CHOOSES TO USE OR NOT
+        # self.scaling()
+        # self.min_max_scaling()
+        # self.z_score_normalization()
 
     def preprocess_data_rfc(self):
 
         self.populate_x_y()
+        # self.principal_component_analysis()
         self.split_data()
+        # self.scaling()
+        # self.min_max_scaling()
+        # self.z_score_normalization()
+        # self.one_hot_encoding()
+        # self.label_encoding()
 
     def preprocess_data_log_reg(self):
 
         self.populate_x_y()
+        # self.principal_component_analysis()
         self.split_data()
+        # self.scaling()
+        # self.min_max_scaling()
+        # self.z_score_normalization()
+        # self.one_hot_encoding()
+        # self.label_encoding()
 
     def preprocess_data_svc(self):
 
         self.populate_x_y()
+        # self.principal_component_analysis()
         self.split_data()
+        # self.scaling()
+        # self.min_max_scaling()
+        # self.z_score_normalization()
+        # self.one_hot_encoding()
+        # self.label_encoding()
 
     def handle_dates(self, df):
         date_cols = df.select_dtypes(include=['datetime64', 'object']).columns
@@ -124,11 +164,19 @@ class ModelTrainer:
 
         return df
 
-    def train_linear_regression(self):
+### ДОБАВИЛ ПАРАМЕТР save_model ( в формате pkl ) через который будем сохранять саму модель после того как затрейнили
+    def train_linear_regression(self, save_model='lin_reg.pkl'):
         if self.is_classification_target():
             raise ValueError("Cannot train Linear Regression model with classification target.")
         model = LinearRegression()
         model.fit(self.X_train, self.y_train)
+### ЕСЛИ БЫЛО НАЗНАЧЕНО НАЗВАНИЕ ФАЙЛА И ПУТЬ КУДА СОХРАНИТЬ ТО МЫ СОХРАНЯЕМ
+        if save_model:
+            joblib.dump(model, save_model)
+        return model
+
+    def load_model(self, model_path):
+        model = joblib.load(model_path)
         return model
 
     def train_random_forest_regression(self):
@@ -180,20 +228,29 @@ class ModelTrainer:
         return self.y_train.dtype not in [int, float]
 
 
-model_trainer = ModelTrainer('AIDS_Classification.csv', 'gender')
+model_trainer = ModelTrainer('Sales.csv', 'sales')
 
 #### Линейная Регрессия ( Самая Быстрая )
+# try:
+#     model_trainer.preprocess_data_lin_reg()
+#     linear_regression_model = model_trainer.train_linear_regression()
+#     y_pred_lr, mae_lr = model_trainer.evaluate_regression_model(linear_regression_model)
+#     print("Linear Regression - Mean Absolute Error:", mae_lr)
+#     print("Linear Regression - Predicted Values:", y_pred_lr)
+# except ValueError as e:
+#     print(e)
+
+### ТЕПЕРЬ ЕСЛИ МЫ ЗАГРУЖАЕМ МОДЕЛЬ НУЖНО СДЕЛАТЬ ВОТ ТАК ОТДЕЛЬНО
 try:
     model_trainer.preprocess_data_lin_reg()
-    linear_regression_model = model_trainer.train_linear_regression()
+    linear_regression_model = model_trainer.load_model('lin_reg.pkl')
     y_pred_lr, mae_lr = model_trainer.evaluate_regression_model(linear_regression_model)
     print("Linear Regression - Mean Absolute Error:", mae_lr)
     print("Linear Regression - Predicted Values:", y_pred_lr)
 except ValueError as e:
     print(e)
 
-
-#### Строит деверво ( +- 3-4 минукты )
+### Строит деверво ( +- 3-4 минукты )
 # try:
 #     model_trainer.preprocess_data_rfr()
 #     random_forest_regression_model = model_trainer.train_random_forest_regression()
