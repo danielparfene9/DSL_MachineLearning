@@ -410,7 +410,28 @@ class ModelTrainer:
         except ValueError as e:
             print("Warning: ", e)
 
+    def func_call(self, model_type=None, load_model=False, model_name=None, save_model=False, pca=False, scaling=False,
+                  min_max=False, z_score=False, one_hot=False, label=False, inputer=False):
+
+        if model_type == 0:
+            model_trainer.rg0(load_model, model_name, save_model, pca, scaling, min_max, z_score, inputer)
+        if model_type == 1:
+            model_trainer.rg1(load_model, model_name, save_model, pca, scaling, min_max, z_score, inputer)
+        if model_type == 2:
+            model_trainer.rg2(load_model, model_name, save_model, pca, scaling, min_max, z_score, inputer)
+        if model_type == 3:
+            model_trainer.cl0(load_model, model_name, save_model, pca, scaling, min_max, z_score, one_hot, label,
+                              inputer)
+        if model_type == 4:
+            model_trainer.cl1(load_model, model_name, save_model, pca, scaling, min_max, z_score, one_hot, label,
+                              inputer)
+        if model_type == 5:
+            model_trainer.cl2(load_model, model_name, save_model, pca, scaling, min_max, z_score, one_hot, label,
+                              inputer)
+
 
 model_trainer = ModelTrainer('Heart_Disease_Class.csv', 'sex')
 
-model_trainer.cl0(False, None, False, False, True, True, True)
+model_trainer.func_call(3, False, None, False, False, True, True,
+                        True)
+
