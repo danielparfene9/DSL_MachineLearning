@@ -1,3 +1,5 @@
+import warnings
+
 import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
@@ -53,104 +55,131 @@ class ModelTrainer:
                                                                                 random_state=42)
 
     # ЭТО КОММАНДЫ ДЛЯ ПРЕДОБРАБОТКИ НА ВЫБОР ПОЛЬЗОВАТЕЛЯ
-    # def scaling(self):
-    #
-    #     scaler = StandardScaler()
-    #     scaler.fit(self.X_train)
-    #     self.X_train = scaler.transform(self.X_train)
-    #     self.X_test = scaler.transform(self.X_test)
+    def scaling(self):
 
-    # ВОТ ЭТОТ НУЖНО ИСПОЛЬЗОВАТЬ ТОЛЬКО ПОСЛЕ Populate_x_y перед split_data
-    # def principal_component_analysis(self):
-    #
-    #     pca = PCA(n_components=0.7)
-    #     self.X = pca.fit_transform(self.X)
-    #
-    # def z_score_normalization(self):
-    #     mean = self.X_train.mean(axis=0)
-    #     std_dev = self.X_train.std(axis=0)
-    #     self.X_train = (self.X_train - mean) / std_dev
-    #     self.X_test = (self.X_test - mean) / std_dev
+        scaler = StandardScaler()
+        scaler.fit(self.X_train)
+        self.X_train = scaler.transform(self.X_train)
+        self.X_test = scaler.transform(self.X_test)
 
-    # ВОТ ЭТИ ДВЕ СЛЕДУЮЩИЕ ТОЛЬКО ДЛЯ КЛАСИФИКАЦИИ
-    # def one_hot_encoding(self):
-    #     encoder = OneHotEncoder(handle_unknown='ignore', sparse=False)
-    #     self.X_train = encoder.fit_transform(self.X_train)
-    #     self.X_test = encoder.transform(self.X_test)
-    #
-    # def label_encoding(self):
-    #     encoder = LabelEncoder()
-    #     self.X_train = encoder.fit_transform(self.X_train)
-    #     self.X_test = encoder.transform(self.X_test)
-    #
-    # def min_max_scaling(self):
-    #     scaler = MinMaxScaler()
-    #     self.X_train = scaler.fit_transform(self.X_train)
-    #     self.X_test = scaler.transform(self.X_test)
+    def principal_component_analysis(self):
 
-# Я НЕ СТАЛ ДЕЛАТЬ ОТДЕЛЬНУЮ ФУНКЦИЮ ГДЕ ЗАКИНУ ВОТ ЭТИ ВСЕ МЕТОДЫ, РЕШИЛ ЧТО БУДЕТ ЛЕГЧЕ ВНУТРИ НИХ УЖЕ ВНЕДРИТЬ
-# МЕТОДЫ ПРЕДОБРАБОТКИ СВЕРХУ ДЛЯ КАЖДОГО ОТДЕЛЬНО ТК ЕСТЬ ТЕ КОТОРЫЕ МОЖНО ИСПОЛЬЗОВАТЬ ТОЛЬКО С КЛАССИФИКАЦИЕИ
-# ВСЕ ЧТО ЗАКОМЕНТИРОВАНО СДЕЛАНО НА ВЫБОР ПОЛЬЗОВАТЕЛЯ
+        pca = PCA(n_components=0.7)
+        self.X = pca.fit_transform(self.X)
 
-    def preprocess_data_lin_reg(self):
+    def z_score_normalization(self):
+        mean = self.X_train.mean(axis=0)
+        std_dev = self.X_train.std(axis=0)
+        self.X_train = (self.X_train - mean) / std_dev
+        self.X_test = (self.X_test - mean) / std_dev
 
-        self.populate_x_y()
-        # self.principal_component_analysis()
+    def one_hot_encoding(self):
+        encoder = OneHotEncoder(handle_unknown='ignore', sparse=False)
+        self.X_train = encoder.fit_transform(self.X_train)
+        self.X_test = encoder.transform(self.X_test)
+
+    def label_encoding(self):
+        encoder = LabelEncoder()
+        self.X_train = encoder.fit_transform(self.X_train)
+        self.X_test = encoder.transform(self.X_test)
+
+    def min_max_scaling(self):
+        scaler = MinMaxScaler()
+        self.X_train = scaler.fit_transform(self.X_train)
+        self.X_test = scaler.transform(self.X_test)
+
+    def preprocess_data_lin_reg(self, pca=False, scaling=False, min_max=False, z_score=False, inputer=False):
+
+        self.populate_x_y(inputer)
+        if pca:
+            self.principal_component_analysis()
         self.split_data()
-        # self.scaling()
-        # self.min_max_scaling()
-        # self.z_score_normalization()
+        if scaling:
+            self.scaling()
+        if min_max:
+            self.min_max_scaling()
+        if z_score:
+            self.z_score_normalization()
 
-    def preprocess_data_rfr(self):
+    def preprocess_data_rfr(self, pca=False, scaling=False, min_max=False, z_score=False, inputer=False):
 
-        self.populate_x_y()
-        # self.principal_component_analysis()
+        self.populate_x_y(inputer)
+        if pca:
+            self.principal_component_analysis()
         self.split_data()
-        # self.scaling()
-        # self.min_max_scaling()
-        # self.z_score_normalization()
+        if scaling:
+            self.scaling()
+        if min_max:
+            self.min_max_scaling()
+        if z_score:
+            self.z_score_normalization()
 
-    def preprocess_data_svr(self):
+    def preprocess_data_svr(self, pca=False, scaling=False, min_max=False, z_score=False, inputer=False):
 
-        self.populate_x_y()
-        # self.principal_component_analysis()
+        self.populate_x_y(inputer)
+        if pca:
+            self.principal_component_analysis()
         self.split_data()
-        # self.scaling()
-        # self.min_max_scaling()
-        # self.z_score_normalization()
+        if scaling:
+            self.scaling()
+        if min_max:
+            self.min_max_scaling()
+        if z_score:
+            self.z_score_normalization()
 
-    def preprocess_data_rfc(self):
+    def preprocess_data_rfc(self, pca=False, scaling=False, min_max=False, z_score=False, one_hot=False, label=False
+                            , inputer=False):
 
-        self.populate_x_y()
-        # self.principal_component_analysis()
+        self.populate_x_y(inputer)
+        if pca:
+            self.principal_component_analysis()
         self.split_data()
-        # self.scaling()
-        # self.min_max_scaling()
-        # self.z_score_normalization()
-        # self.one_hot_encoding()
-        # self.label_encoding()
+        if scaling:
+            self.scaling()
+        if min_max:
+            self.min_max_scaling()
+        if z_score:
+            self.z_score_normalization()
+        if one_hot:
+            self.one_hot_encoding()
+        if label:
+            self.label_encoding()
 
-    def preprocess_data_log_reg(self):
+    def preprocess_data_log_reg(self, pca=False, scaling=False, min_max=False, z_score=False, one_hot=False, label=False
+                                , inputer=False):
 
-        self.populate_x_y()
-        # self.principal_component_analysis()
+        self.populate_x_y(inputer)
+        if pca:
+            self.principal_component_analysis()
         self.split_data()
-        # self.scaling()
-        # self.min_max_scaling()
-        # self.z_score_normalization()
-        # self.one_hot_encoding()
-        # self.label_encoding()
+        if scaling:
+            self.scaling()
+        if min_max:
+            self.min_max_scaling()
+        if z_score:
+            self.z_score_normalization()
+        if one_hot:
+            self.one_hot_encoding()
+        if label:
+            self.label_encoding()
 
-    def preprocess_data_svc(self):
+    def preprocess_data_svc(self, pca=False, scaling=False, min_max=False, z_score=False, one_hot=False, label=False
+                            , inputer=False):
 
-        self.populate_x_y()
-        # self.principal_component_analysis()
+        self.populate_x_y(inputer)
+        if pca:
+            self.principal_component_analysis()
         self.split_data()
-        # self.scaling()
-        # self.min_max_scaling()
-        # self.z_score_normalization()
-        # self.one_hot_encoding()
-        # self.label_encoding()
+        if scaling:
+            self.scaling()
+        if min_max:
+            self.min_max_scaling()
+        if z_score:
+            self.z_score_normalization()
+        if one_hot:
+            self.one_hot_encoding()
+        if label:
+            self.label_encoding()
 
     def handle_dates(self, df):
         date_cols = df.select_dtypes(include=['datetime64', 'object']).columns
@@ -166,31 +195,27 @@ class ModelTrainer:
 
         return df
 
-
     def load_model(self, model_path):
         model = joblib.load(model_path)
         return model
 
-# ДОБАВИЛ ПАРАМЕТР save_model ( в формате pkl ) через который будем сохранять саму модель после того как затрейнили
-    def train_linear_regression(self, save_model='lin_reg'):
+    def train_linear_regression(self, save_model=False):
         if self.is_classification_target():
             raise ValueError("Cannot train Linear Regression model with classification target.")
         model = LinearRegression()
         model.fit(self.X_train, self.y_train)
 
-# ЕСЛИ БЫЛО НАЗНАЧЕНО НАЗВАНИЕ ФАЙЛА И ПУТЬ КУДА СОХРАНИТЬ, ТО МЫ СОХРАНЯЕМ
         if save_model:
             index = 0
             while True:
-                filename = f"{save_model}_{index}.pkl"
+                filename = f"{'lin_reg'}_{index}.pkl"
                 if not os.path.exists(filename):
                     break
                 index += 1
             joblib.dump(model, filename)
         return model
-# ВМЕСТО НАЗВАНИЯ МОДЕЛИ, ЕСЛИ ПОЛЬЗОВАТЕЛЮ НЕ НУЖНО ЕЕ СОХРАНАЯТЬ ДОЛЖНО СТОЯТЬ None
 
-    def train_random_forest_regression(self, save_model='random_forest_reg'):
+    def train_random_forest_regression(self, save_model=False):
         if self.is_classification_target():
             raise ValueError("Cannot train Random Forest Regression model with classification target.")
         model = RandomForestRegressor()
@@ -199,14 +224,14 @@ class ModelTrainer:
         if save_model:
             index = 0
             while True:
-                filename = f"{save_model}_{index}.pkl"
+                filename = f"{'random_forest_reg'}_{index}.pkl"
                 if not os.path.exists(filename):
                     break
                 index += 1
             joblib.dump(model, filename)
         return model
 
-    def train_support_vector_regression(self, save_model='svr_reg'):
+    def train_support_vector_regression(self, save_model=False):
         if self.is_classification_target():
             raise ValueError("Cannot train Support Vector Regression model with classification target.")
         model = SVR()
@@ -215,14 +240,14 @@ class ModelTrainer:
         if save_model:
             index = 0
             while True:
-                filename = f"{save_model}_{index}.pkl"
+                filename = f"{'svr_reg'}_{index}.pkl"
                 if not os.path.exists(filename):
                     break
                 index += 1
             joblib.dump(model, filename)
         return model
 
-    def train_logistic_regression(self, save_model='logistic_reg_cl'):
+    def train_logistic_regression(self, save_model=False):
         if not self.is_classification_target():
             raise ValueError("Cannot train Logistic Regression model with regression target.")
         model = LogisticRegression()
@@ -231,14 +256,14 @@ class ModelTrainer:
         if save_model:
             index = 0
             while True:
-                filename = f"{save_model}_{index}.pkl"
+                filename = f"{'logistic_reg_cl'}_{index}.pkl"
                 if not os.path.exists(filename):
                     break
                 index += 1
             joblib.dump(model, filename)
         return model
 
-    def train_random_forest_classifier(self, save_model='random_forest_cl'):
+    def train_random_forest_classifier(self, save_model=False):
         if not self.is_classification_target():
             raise ValueError("Cannot train Random Forest Classifier model with regression target.")
         model = RandomForestClassifier()
@@ -247,14 +272,14 @@ class ModelTrainer:
         if save_model:
             index = 0
             while True:
-                filename = f"{save_model}_{index}.pkl"
+                filename = f"{'random_forest_cl'}_{index}.pkl"
                 if not os.path.exists(filename):
                     break
                 index += 1
             joblib.dump(model, filename)
         return model
 
-    def train_support_vector_classifier(self, save_model='svc_cl'):
+    def train_support_vector_classifier(self, save_model=False):
         if not self.is_classification_target():
             raise ValueError("Cannot train Support Vector Classifier model with regression target.")
         model = SVC()
@@ -263,7 +288,7 @@ class ModelTrainer:
         if save_model:
             index = 0
             while True:
-                filename = f"{save_model}_{index}.pkl"
+                filename = f"{'svc_cl'}_{index}.pkl"
                 if not os.path.exists(filename):
                     break
                 index += 1
@@ -283,73 +308,109 @@ class ModelTrainer:
     def is_classification_target(self):
         return self.y_train.dtype not in [int, float]
 
+    def rg0(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
+            z_score=False, inputer=False):
 
-model_trainer = ModelTrainer('Sales.csv', 'sales')
-load_model = True
+        try:
+            model_trainer.preprocess_data_lin_reg(pca, scaling, min_max, z_score, inputer)
+            
+            if load_model:
+                linear_regression_model = model_trainer.load_model(model_name)
+            else:
+                linear_regression_model = model_trainer.train_linear_regression(save_model)
 
-# Линейная Регрессия ( Самая Быстрая )
-try:
-    model_trainer.preprocess_data_lin_reg()
-    # ЕСЛИ У ПОЛЬЗОВАТЕЛЯ УЖЕ ЕСТЬ МОДЕЛЬ, ТО ЗАГРУЖАЕМ ( Если тебе удобно работать с вот такой формой,
-    # Я сделаю и для остальных также, просто немного напрягает переменная load_model которую нужно будет контролировать.
-    if load_model:
-        linear_regression_model = model_trainer.load_model('lin_reg.pkl')
-    else:
-        linear_regression_model = model_trainer.train_linear_regression()
+            y_pred_lr, mae_lr = model_trainer.evaluate_regression_model(linear_regression_model)
+            print("Linear Regression - Mean Absolute Error:", mae_lr)
+            print("Linear Regression - Predicted Values:", y_pred_lr)
+        except ValueError as e:
+            print("Warning: ", e)
+            
+    def rg1(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
+            z_score=False, inputer=False):
 
-    y_pred_lr, mae_lr = model_trainer.evaluate_regression_model(linear_regression_model)
-    print("Linear Regression - Mean Absolute Error:", mae_lr)
-    print("Linear Regression - Predicted Values:", y_pred_lr)
-except ValueError as e:
-    print(e)
+        try:
+            model_trainer.preprocess_data_rfr(pca, scaling, min_max, z_score, inputer)
+            if load_model:
+                random_forest_regression_model = model_trainer.load_model(model_name)
+            else:
+                random_forest_regression_model = model_trainer.train_random_forest_regression(save_model)
+                
+            y_pred_rf, mae_rf = model_trainer.evaluate_regression_model(random_forest_regression_model)
+            print("Random Forest Regression - Mean Absolute Error:", mae_rf)
+            print("Random Forest Regression - Predicted Values:", y_pred_rf)
+        except ValueError as e:
+            print("Warning: ", e)
+            
+    def rg2(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
+            z_score=False, inputer=False):
 
-# Строит деверво ( +- 3-4 минукты )
-# try:
-#     model_trainer.preprocess_data_rfr()
-#     random_forest_regression_model = model_trainer.train_random_forest_regression()
-#     y_pred_rf, mae_rf = model_trainer.evaluate_regression_model(random_forest_regression_model)
-#     print("Random Forest Regression - Mean Absolute Error:", mae_rf)
-#     print("Random Forest Regression - Predicted Values:", y_pred_rf)
-# except ValueError as e:
-#     print(e)
+        try:
+            model_trainer.preprocess_data_svr(pca, scaling, min_max, z_score, inputer)
+            
+            if load_model:
+                support_vector_regression_model = model_trainer.load_model(model_name)
+            else:
+                support_vector_regression_model = model_trainer.train_support_vector_regression(save_model)
+                
+            y_pred_svr, mae_svr = model_trainer.evaluate_regression_model(support_vector_regression_model)
+            print("Support Vector Regression - Mean Absolute Error:", mae_svr)
+            print("Support Vector Regression - Predicted Values:", y_pred_svr)
+        except ValueError as e:
+            print("Warning: ", e)
+            
+    def cl0(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
+            z_score=False, one_hot=False, label=False, inputer=False):
 
-# Строит вектора в 2д виде ( +- 8 минукт )
-# try:
-#     model_trainer.preprocess_data_svr()
-#     support_vector_regression_model = model_trainer.train_support_vector_regression()
-#     y_pred_svr, mae_svr = model_trainer.evaluate_regression_model(support_vector_regression_model)
-#     print("Support Vector Regression - Mean Absolute Error:", mae_svr)
-#     print("Support Vector Regression - Predicted Values:", y_pred_svr)
-# except ValueError as e:
-#     print(e)
+        try:
+            model_trainer.preprocess_data_log_reg(pca, scaling, min_max, z_score, inputer, one_hot, label)
+
+            if load_model:
+                logistic_regression_model = model_trainer.load_model(model_name)
+            else:
+                logistic_regression_model = model_trainer.train_logistic_regression(save_model)
+
+            y_pred_logistic, accuracy_logistic = model_trainer.evaluate_classification_model(logistic_regression_model)
+            print("Logistic Regression - Accuracy:", accuracy_logistic)
+            print("Logistic Regression - Predicted Values:", y_pred_logistic)
+        except ValueError as e:
+            print("Warning: ", e)
+            
+    def cl1(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
+            z_score=False, one_hot=False, label=False, inputer=False):
+
+        try:
+            model_trainer.preprocess_data_rfc(pca, scaling, min_max, z_score, inputer, one_hot, label)
+            
+            if load_model:
+                random_forest_classifier_model = model_trainer.load_model(model_name)
+            else:
+                random_forest_classifier_model = model_trainer.train_random_forest_classifier(save_model)
+                
+            y_pred_rf_class, accuracy_rf_class = model_trainer.evaluate_classification_model(
+                random_forest_classifier_model)
+            print("Random Forest Classifier - Accuracy:", accuracy_rf_class)
+            print("Random Forest Classifier - Predicted Values:", y_pred_rf_class)
+        except ValueError as e:
+            print("Warning: ", e)
+            
+    def cl2(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
+            z_score=False, one_hot=False, label=False, inputer=False):
+
+        try:
+            model_trainer.preprocess_data_svc(pca, scaling, min_max, z_score, inputer, one_hot, label)
+            
+            if load_model:
+                support_vector_classifier_model = model_trainer.load_model(model_name)
+            else:
+                support_vector_classifier_model = model_trainer.train_support_vector_classifier(save_model)
+                
+            y_pred_svc, accuracy_svc = model_trainer.evaluate_classification_model(support_vector_classifier_model)
+            print("Support Vector Classifier - Accuracy:", accuracy_svc)
+            print("Support Vector Classifier - Predicted Values:", y_pred_svc)
+        except ValueError as e:
+            print("Warning: ", e)
 
 
-# Тоже самое только для классификации
-# try:
-#     model_trainer.preprocess_data_log_reg()
-#     logistic_regression_model = model_trainer.train_logistic_regression()
-#     y_pred_logistic, accuracy_logistic = model_trainer.evaluate_classification_model(logistic_regression_model)
-#     print("Logistic Regression - Accuracy:", accuracy_logistic)
-#     print("Logistic Regression - Predicted Values:", y_pred_logistic)
-# except ValueError as e:
-#     print(e)
-# Тоже самое только для классификации
-# try:
-#     model_trainer.preprocess_data_rfc()
-#     random_forest_classifier_model = model_trainer.train_random_forest_classifier()
-#     y_pred_rf_class, accuracy_rf_class = model_trainer.evaluate_classification_model(random_forest_classifier_model)
-#     print("Random Forest Classifier - Accuracy:", accuracy_rf_class)
-#     print("Random Forest Classifier - Predicted Values:", y_pred_rf_class)
-# except ValueError as e:
-#     print(e)
+model_trainer = ModelTrainer('Heart_Disease_Class.csv', 'sex')
 
-
-# ДОЛГО
-# try:
-#     model_trainer.preprocess_data_svc()
-#     support_vector_classifier_model = model_trainer.train_support_vector_classifier()
-#     y_pred_svc, accuracy_svc = model_trainer.evaluate_classification_model(support_vector_classifier_model)
-#     print("Support Vector Classifier - Accuracy:", accuracy_svc)
-#     print("Support Vector Classifier - Predicted Values:", y_pred_svc)
-# except ValueError as e:
-#     print(e)
+model_trainer.cl0(False, None, False, False, True, True, True)
