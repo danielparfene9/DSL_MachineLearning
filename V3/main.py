@@ -430,7 +430,7 @@ class ModelTrainer:
                               inputer)
 
 
-model_trainer = ModelTrainer('Heart_Disease_Class.csv', 'sex')
+model_trainer = ModelTrainer('Heart_Disease_Class.csv', 'target')
 
 model_trainer.func_call(3, False, None, False, False, True, True,
                         True)
