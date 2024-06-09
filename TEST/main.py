@@ -140,9 +140,9 @@ class ModelTrainer:
         self.X = self.data.drop(target_col, axis=1)
         self.y = self.data[target_col]
 
-    def split_data(self):
+    def split_data(self, size):
 
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, test_size=0.2,
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, test_size=size,
                                                                                 random_state=42)
 
     # ЭТО КОММАНДЫ ДЛЯ ПРЕДОБРАБОТКИ НА ВЫБОР ПОЛЬЗОВАТЕЛЯ
@@ -179,12 +179,12 @@ class ModelTrainer:
         self.X_train = scaler.fit_transform(self.X_train)
         self.X_test = scaler.transform(self.X_test)
 
-    def preprocess_data_lin_reg(self, pca=False, scaling=False, min_max=False, z_score=False, inputer=False):
+    def preprocess_data_lin_reg(self, pca=False, scaling=False, min_max=False, z_score=False, inputer=False, size=None):
 
         self.populate_x_y(inputer)
         if pca:
             self.principal_component_analysis()
-        self.split_data()
+        self.split_data(size)
         if scaling:
             self.scaling()
         if min_max:
@@ -192,12 +192,12 @@ class ModelTrainer:
         if z_score:
             self.z_score_normalization()
 
-    def preprocess_data_rfr(self, pca=False, scaling=False, min_max=False, z_score=False, inputer=False):
+    def preprocess_data_rfr(self, pca=False, scaling=False, min_max=False, z_score=False, inputer=False, size=None):
 
         self.populate_x_y(inputer)
         if pca:
             self.principal_component_analysis()
-        self.split_data()
+        self.split_data(size)
         if scaling:
             self.scaling()
         if min_max:
@@ -205,12 +205,12 @@ class ModelTrainer:
         if z_score:
             self.z_score_normalization()
 
-    def preprocess_data_svr(self, pca=False, scaling=False, min_max=False, z_score=False, inputer=False):
+    def preprocess_data_svr(self, pca=False, scaling=False, min_max=False, z_score=False, inputer=False, size=None):
 
         self.populate_x_y(inputer)
         if pca:
             self.principal_component_analysis()
-        self.split_data()
+        self.split_data(size)
         if scaling:
             self.scaling()
         if min_max:
@@ -219,12 +219,12 @@ class ModelTrainer:
             self.z_score_normalization()
 
     def preprocess_data_rfc(self, pca=False, scaling=False, min_max=False, z_score=False, one_hot=False, label=False
-                            , inputer=False):
+                            , inputer=False, size=None):
 
         self.populate_x_y(inputer)
         if pca:
             self.principal_component_analysis()
-        self.split_data()
+        self.split_data(size)
         if scaling:
             self.scaling()
         if min_max:
@@ -237,12 +237,12 @@ class ModelTrainer:
             self.label_encoding()
 
     def preprocess_data_log_reg(self, pca=False, scaling=False, min_max=False, z_score=False, one_hot=False, label=False
-                                , inputer=False):
+                                , inputer=False, size=None):
 
         self.populate_x_y(inputer)
         if pca:
             self.principal_component_analysis()
-        self.split_data()
+        self.split_data(size)
         if scaling:
             self.scaling()
         if min_max:
@@ -255,12 +255,12 @@ class ModelTrainer:
             self.label_encoding()
 
     def preprocess_data_svc(self, pca=False, scaling=False, min_max=False, z_score=False, one_hot=False, label=False
-                            , inputer=False):
+                            , inputer=False, size=None):
 
         self.populate_x_y(inputer)
         if pca:
             self.principal_component_analysis()
-        self.split_data()
+        self.split_data(size)
         if scaling:
             self.scaling()
         if min_max:
@@ -406,10 +406,10 @@ class ModelTrainer:
         return self.y_train.dtype not in [int, float]
 
     def rg0(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
-            z_score=False, inputer=False):
+            z_score=False, inputer=False, size=None):
 
         try:
-            self.preprocess_data_lin_reg(pca, scaling, min_max, z_score, inputer)
+            self.preprocess_data_lin_reg(pca, scaling, min_max, z_score, inputer, size)
 
             if load_model:
                 linear_regression_model = self.load_model(f"{'lin_reg'}_{read_row('saved_models_names.txt', 0)}.pkl")
@@ -438,10 +438,10 @@ class ModelTrainer:
             }
 
     def rg1(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
-            z_score=False, inputer=False):
+            z_score=False, inputer=False, size=None):
 
         try:
-            self.preprocess_data_rfr(pca, scaling, min_max, z_score, inputer)
+            self.preprocess_data_rfr(pca, scaling, min_max, z_score, inputer, size)
             if load_model:
                 random_forest_regression_model = self.load_model(
                     f"{'random_forest_reg'}_{read_row('saved_models_names.txt', 1)}.pkl")
@@ -469,10 +469,10 @@ class ModelTrainer:
             }
 
     def rg2(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
-            z_score=False, inputer=False):
+            z_score=False, inputer=False, size=None):
 
         try:
-            self.preprocess_data_svr(pca, scaling, min_max, z_score, inputer)
+            self.preprocess_data_svr(pca, scaling, min_max, z_score, inputer, size)
 
             if load_model:
                 support_vector_regression_model = self.load_model(
@@ -501,10 +501,10 @@ class ModelTrainer:
             }
 
     def cl0(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
-            z_score=False, one_hot=False, label=False, inputer=False):
+            z_score=False, one_hot=False, label=False, inputer=False, size=None):
 
         try:
-            self.preprocess_data_log_reg(pca, scaling, min_max, z_score, inputer, one_hot, label)
+            self.preprocess_data_log_reg(pca, scaling, min_max, z_score, inputer, one_hot, label, size)
 
             if load_model:
                 logistic_regression_model = self.load_model(
@@ -534,10 +534,10 @@ class ModelTrainer:
             }
 
     def cl1(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
-            z_score=False, one_hot=False, label=False, inputer=False):
+            z_score=False, one_hot=False, label=False, inputer=False, size=None):
 
         try:
-            self.preprocess_data_rfc(pca, scaling, min_max, z_score, inputer, one_hot, label)
+            self.preprocess_data_rfc(pca, scaling, min_max, z_score, inputer, one_hot, label, size)
 
             if load_model:
                 random_forest_classifier_model = self.load_model(
@@ -568,10 +568,10 @@ class ModelTrainer:
             }
 
     def cl2(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
-            z_score=False, one_hot=False, label=False, inputer=False):
+            z_score=False, one_hot=False, label=False, inputer=False, size=None):
 
         try:
-            self.preprocess_data_svc(pca, scaling, min_max, z_score, inputer, one_hot, label)
+            self.preprocess_data_svc(pca, scaling, min_max, z_score, inputer, one_hot, label, size)
 
             if load_model:
                 support_vector_classifier_model = self.load_model(
@@ -600,7 +600,7 @@ class ModelTrainer:
             }
 
     def func_call(self, model_type=None, load_model=False, model_name=None, save_model=False, pca=False, scaling=False,
-                  min_max=False, z_score=False, one_hot=False, label=False, inputer=False):
+                  min_max=False, z_score=False, one_hot=False, label=False, inputer=False, size=None):
 
         if model_type == '0':
             print("here")
