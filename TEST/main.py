@@ -290,10 +290,10 @@ class ModelTrainer:
         model = joblib.load(model_path)
         return model
 
-    def train_linear_regression(self, save_model=False):
+    def train_linear_regression(self, save_model=False, fit_intercept=True, n_jobs=None):
         if self.is_classification_target():
             raise ValueError("Cannot train Linear Regression model with classification target.")
-        model = LinearRegression()
+        model = LinearRegression(fit_intercept=fit_intercept, n_jobs=n_jobs)
         model.fit(self.X_train, self.y_train)
 
         if save_model:
@@ -307,10 +307,10 @@ class ModelTrainer:
             joblib.dump(model, filename)
         return model
 
-    def train_random_forest_regression(self, save_model=False):
+    def train_random_forest_regression(self, save_model=False, n_estimators=100, max_depth=None, random_state=None):
         if self.is_classification_target():
             raise ValueError("Cannot train Random Forest Regression model with classification target.")
-        model = RandomForestRegressor()
+        model = RandomForestRegressor(n_estimators=n_estimators, max_depth=max_depth, random_state=random_state)
         model.fit(self.X_train, self.y_train)
 
         if save_model:
@@ -324,10 +324,10 @@ class ModelTrainer:
             joblib.dump(model, filename)
         return model
 
-    def train_support_vector_regression(self, save_model=False):
+    def train_support_vector_regression(self, save_model=False, kernel='rbf', C=1.0, epsilon=0.1):
         if self.is_classification_target():
             raise ValueError("Cannot train Support Vector Regression model with classification target.")
-        model = SVR()
+        model = SVR(kernel=kernel, C=C, epsilon=epsilon)
         model.fit(self.X_train, self.y_train)
 
         if save_model:
@@ -341,10 +341,10 @@ class ModelTrainer:
             joblib.dump(model, filename)
         return model
 
-    def train_logistic_regression(self, save_model=False):
+    def train_logistic_regression(self, save_model=False, penalty='l2', C=1.0, solver='lbfgs', max_iter=100):
         if not self.is_classification_target():
             raise ValueError("Cannot train Logistic Regression model with regression target.")
-        model = LogisticRegression()
+        model = LogisticRegression(penalty=penalty, C=C, solver=solver, max_iter=max_iter)
         model.fit(self.X_train, self.y_train)
 
         if save_model:
@@ -358,10 +358,10 @@ class ModelTrainer:
             joblib.dump(model, filename)
         return model
 
-    def train_random_forest_classifier(self, save_model=False):
+    def train_random_forest_classifier(self, save_model=False, n_estimators=100, max_depth=None, random_state=None):
         if not self.is_classification_target():
             raise ValueError("Cannot train Random Forest Classifier model with regression target.")
-        model = RandomForestClassifier()
+        model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, random_state=random_state)
         model.fit(self.X_train, self.y_train)
 
         if save_model:
@@ -375,10 +375,10 @@ class ModelTrainer:
             joblib.dump(model, filename)
         return model
 
-    def train_support_vector_classifier(self, save_model=False):
+    def train_support_vector_classifier(self, save_model=False, kernel='rbf', C=1.0, gamma='scale'):
         if not self.is_classification_target():
             raise ValueError("Cannot train Support Vector Classifier model with regression target.")
-        model = SVC()
+        model = SVC(kernel=kernel, C=C, gamma=gamma)
         model.fit(self.X_train, self.y_train)
 
         if save_model:
@@ -406,7 +406,7 @@ class ModelTrainer:
         return self.y_train.dtype not in [int, float]
 
     def rg0(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
-            z_score=False, inputer=False, size=None):
+            z_score=False, inputer=False, size=None, fit_intercept=True, n_jobs=None):
 
         try:
             self.preprocess_data_lin_reg(pca, scaling, min_max, z_score, inputer, size)
@@ -414,7 +414,7 @@ class ModelTrainer:
             if load_model:
                 linear_regression_model = self.load_model(f"{'lin_reg'}_{read_row('saved_models_names.txt', 0)}.pkl")
             else:
-                linear_regression_model = self.train_linear_regression(save_model)
+                linear_regression_model = self.train_linear_regression(save_model, fit_intercept, n_jobs)
 
             y_pred_lr, mae_lr = self.evaluate_regression_model(linear_regression_model)
             print("Linear Regression - Mean Absolute Error:", mae_lr)
@@ -438,7 +438,7 @@ class ModelTrainer:
             }
 
     def rg1(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
-            z_score=False, inputer=False, size=None):
+            z_score=False, inputer=False, size=None, n_estimators=100, max_depth=None, random_state=None):
 
         try:
             self.preprocess_data_rfr(pca, scaling, min_max, z_score, inputer, size)
@@ -446,7 +446,8 @@ class ModelTrainer:
                 random_forest_regression_model = self.load_model(
                     f"{'random_forest_reg'}_{read_row('saved_models_names.txt', 1)}.pkl")
             else:
-                random_forest_regression_model = self.train_random_forest_regression(save_model)
+                random_forest_regression_model = self.train_random_forest_regression(save_model, n_estimators,
+                                                                                     max_depth, random_state)
 
             y_pred_rf, mae_rf = self.evaluate_regression_model(random_forest_regression_model)
             print("Random Forest Regression - Mean Absolute Error:", mae_rf)
@@ -469,7 +470,7 @@ class ModelTrainer:
             }
 
     def rg2(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
-            z_score=False, inputer=False, size=None):
+            z_score=False, inputer=False, size=None, kernel='rbf', C=1.0, epsilon=0.1):
 
         try:
             self.preprocess_data_svr(pca, scaling, min_max, z_score, inputer, size)
@@ -478,7 +479,7 @@ class ModelTrainer:
                 support_vector_regression_model = self.load_model(
                     f"{'svr_reg'}_{read_row('saved_models_names.txt', 2)}.pkl")
             else:
-                support_vector_regression_model = self.train_support_vector_regression(save_model)
+                support_vector_regression_model = self.train_support_vector_regression(save_model, kernel, C, epsilon)
 
             y_pred_svr, mae_svr = self.evaluate_regression_model(support_vector_regression_model)
             print("Support Vector Regression - Mean Absolute Error:", mae_svr)
@@ -501,7 +502,8 @@ class ModelTrainer:
             }
 
     def cl0(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
-            z_score=False, one_hot=False, label=False, inputer=False, size=None):
+            z_score=False, one_hot=False, label=False, inputer=False, size=None, penalty='l2', C=1.0, solver='lbfgs',
+            max_iter=100):
 
         try:
             self.preprocess_data_log_reg(pca, scaling, min_max, z_score, inputer, one_hot, label, size)
@@ -510,7 +512,7 @@ class ModelTrainer:
                 logistic_regression_model = self.load_model(
                     f"{'logistic_reg_cl'}_{read_row('saved_models_names.txt', 3)}.pkl")
             else:
-                logistic_regression_model = self.train_logistic_regression(save_model)
+                logistic_regression_model = self.train_logistic_regression(save_model, penalty, C, solver, max_iter)
 
             y_pred_logistic, accuracy_logistic = self.evaluate_classification_model(logistic_regression_model)
             print("Logistic Regression - Accuracy:", accuracy_logistic)
@@ -534,7 +536,8 @@ class ModelTrainer:
             }
 
     def cl1(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
-            z_score=False, one_hot=False, label=False, inputer=False, size=None):
+            z_score=False, one_hot=False, label=False, inputer=False, size=None, n_estimators=100, max_depth=None,
+            random_state=None):
 
         try:
             self.preprocess_data_rfc(pca, scaling, min_max, z_score, inputer, one_hot, label, size)
@@ -543,7 +546,8 @@ class ModelTrainer:
                 random_forest_classifier_model = self.load_model(
                     f"{'random_forest_cl'}_{read_row('saved_models_names.txt', 4)}.pkl")
             else:
-                random_forest_classifier_model = self.train_random_forest_classifier(save_model)
+                random_forest_classifier_model = self.train_random_forest_classifier(save_model, n_estimators,
+                                                                                     max_depth, random_state)
 
             y_pred_rf_class, accuracy_rf_class = self.evaluate_classification_model(
                 random_forest_classifier_model)
@@ -568,7 +572,7 @@ class ModelTrainer:
             }
 
     def cl2(self, load_model=False, model_name=None, save_model=False, pca=False, scaling=False, min_max=False,
-            z_score=False, one_hot=False, label=False, inputer=False, size=None):
+            z_score=False, one_hot=False, label=False, inputer=False, size=None, kernel='rbf', C=1.0, gamma='scale'):
 
         try:
             self.preprocess_data_svc(pca, scaling, min_max, z_score, inputer, one_hot, label, size)
@@ -577,7 +581,7 @@ class ModelTrainer:
                 support_vector_classifier_model = self.load_model(
                     f"{'svc_cl'}_{read_row('saved_models_names.txt', 5)}.pkl")
             else:
-                support_vector_classifier_model = self.train_support_vector_classifier(save_model)
+                support_vector_classifier_model = self.train_support_vector_classifier(save_model, kernel, C, gamma)
 
             y_pred_svc, accuracy_svc = self.evaluate_classification_model(support_vector_classifier_model)
             print("Support Vector Classifier - Accuracy:", accuracy_svc)
@@ -600,7 +604,9 @@ class ModelTrainer:
             }
 
     def func_call(self, model_type=None, load_model=False, model_name=None, save_model=False, pca=False, scaling=False,
-                  min_max=False, z_score=False, one_hot=False, label=False, inputer=False, size=None):
+                  min_max=False, z_score=False, one_hot=False, label=False, inputer=False, size=None, kernel='rbf',
+                  C=1.0, n_jobs=None, n_estimators=100, max_depth=None, random_state=None, epsilon=0.1, penalty='l2',
+                  solver='lbfgs', max_iter=100, gamma='scale'):
 
         if model_type == '0':
             print("here")
