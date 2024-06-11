@@ -606,7 +606,7 @@ class ModelTrainer:
     def func_call(self, model_type=None, load_model=False, model_name=None, save_model=False, pca=False, scaling=False,
                   min_max=False, z_score=False, one_hot=False, label=False, inputer=False, size=None, kernel='rbf',
                   C=1.0, n_jobs=None, n_estimators=100, max_depth=None, random_state=None, epsilon=0.1, penalty='l2',
-                  solver='lbfgs', max_iter=100, gamma='scale'):
+                  solver='lbfgs', max_iter=100, gamma='scale', fit_intercept=True):
 
         if model_type == '0':
             print("here")
