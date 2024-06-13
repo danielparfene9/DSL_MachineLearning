@@ -604,35 +604,39 @@ class ModelTrainer:
             }
 
     def func_call(self, model_type=None, load_model=False, model_name=None, save_model=False, pca=False, scaling=False,
-                  min_max=False, z_score=False, one_hot=False, label=False, inputer=False, size=None, kernel='rbf',
-                  C=1.0, n_jobs=None, n_estimators=100, max_depth=None, random_state=None, epsilon=0.1, penalty='l2',
+                  min_max=False, z_score=False, one_hot=False, label=False, inputer=False, size=0.2, kernel='rbf',
+                  C=1.0, n_jobs=1, n_estimators=100, max_depth=None, random_state=None, epsilon=0.1, penalty='l2',
                   solver='lbfgs', max_iter=100, gamma='scale', fit_intercept=True):
 
         if model_type == '0':
             print("here")
             return (self.rg0(str_to_bool(load_model), model_name, str_to_bool(save_model), str_to_bool(pca),
-                             str_to_bool(scaling), str_to_bool(min_max), str_to_bool(z_score), str_to_bool(inputer)))
+                             str_to_bool(scaling), str_to_bool(min_max), str_to_bool(z_score), str_to_bool(inputer), float(size), str_to_bool(fit_intercept), int(n_jobs)))
         if model_type == '1':
+            max_depth = None if max_depth is None else int(max_depth)
+            random_state = None if random_state is None else int(random_state)
             return (self.rg1(str_to_bool(load_model), model_name, str_to_bool(save_model), str_to_bool(pca),
-                             str_to_bool(scaling), str_to_bool(min_max), str_to_bool(z_score), str_to_bool(inputer)))
+                             str_to_bool(scaling), str_to_bool(min_max), str_to_bool(z_score), str_to_bool(inputer), float(size), int(n_estimators), max_depth, random_state))
         if model_type == '2':
             return (self.rg2(str_to_bool(load_model), model_name, str_to_bool(save_model), str_to_bool(pca),
-                             str_to_bool(scaling), str_to_bool(min_max), str_to_bool(z_score), str_to_bool(inputer)))
+                             str_to_bool(scaling), str_to_bool(min_max), str_to_bool(z_score), str_to_bool(inputer), float(size), kernel, float(C), float(epsilon)))
         if model_type == '3':
             return (self.cl0(str_to_bool(load_model), model_name, str_to_bool(save_model), str_to_bool(pca),
                              str_to_bool(scaling), str_to_bool(min_max), str_to_bool(z_score), str_to_bool(one_hot),
                              str_to_bool(label),
-                             str_to_bool(inputer)))
+                             str_to_bool(inputer), float(size)), penalty, float(C), solver, int(max_iter))
         if model_type == '4':
+            max_depth = None if max_depth is None else int(max_depth)
+            random_state = None if random_state is None else int(random_state)
             return (self.cl1(str_to_bool(load_model), model_name, str_to_bool(save_model), str_to_bool(pca),
                              str_to_bool(scaling), str_to_bool(min_max), str_to_bool(z_score), str_to_bool(one_hot),
                              str_to_bool(label),
-                             str_to_bool(inputer)))
+                             str_to_bool(inputer), float(size), int(n_estimators), max_depth, random_state))
         if model_type == '5':
             return (self.cl2(str_to_bool(load_model), model_name, str_to_bool(save_model), str_to_bool(pca),
                              str_to_bool(scaling), str_to_bool(min_max), str_to_bool(z_score), str_to_bool(one_hot),
                              str_to_bool(label),
-                             str_to_bool(inputer)))
+                             str_to_bool(inputer), float(size), kernel, float(C), gamma))
 
 @app.route('/process', methods=['POST'])
 def handle_command():
